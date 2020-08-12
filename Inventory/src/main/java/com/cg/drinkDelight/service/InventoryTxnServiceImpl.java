@@ -27,10 +27,36 @@ public class InventoryTxnServiceImpl implements InventoryTxnService{
 
 	@Override
 	public boolean addInventoryTxn(InventoryForm form)
-			throws InvalidProdIdException, InvalidVendorIdException, OutOfStockException {
-		
-		
-		return false;
+			throws InvalidProdIdException, InvalidVendorIdException, OutOfStockException {InventoryTxn txn = new InventoryTxn();
+
+		Vendor vendor = dao.viewVendor(form.getVendorId());
+		if (vendor == null || !dao.viewVendors().contains(vendor))
+			throw new InvalidVendorIdException(DrinkDelightConstant.INVALID_VENDOR);
+
+		Product prod = dao.viewProduct(form.getProductId());
+		if (prod == null || !dao.viewProducts().contains(prod))
+			throw new InvalidProdIdException(DrinkDelightConstant.INVALID_PRODUCT);
+
+		if ((txn.getQty() > prod.getStock()) && form.getVendortype().equals(DrinkDelightConstant.CONSUMER))
+			throw new OutOfStockException(DrinkDelightConstant.OUT_OF_STOCK);
+
+		long txnId = dao.getMaxTxID() + 1;
+		txn.setInventoryId(txnId);
+		txn.setProd(prod);
+		txn.setVendor(vendor);
+		txn.setTxtType(form.getVendortype());
+		txn.setDateOfTxn(LocalDate.now());
+		txn.setQty(form.getQty());
+		if (txn.getVendor().getVendorType().equals(DrinkDelightConstant.SUPPLIER))
+			prod.setStock(prod.getStock() + form.getQty());
+
+		else
+			prod.setStock(prod.getStock() - form.getQty());
+
+		dao.editProduct(prod);
+		dao.addInventory(txn);
+		return true; // Order placed Successfully
+
 	}
 
 	@Override

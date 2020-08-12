@@ -70,6 +70,61 @@ public class DrinkDelightDaoImpl implements DrinkDelightDao{
 		TypedQuery<InventoryTxn> query = em.createQuery(jpql,InventoryTxn.class);
 		return query.getResultList();
 	}
+	
+	@Override
+	public boolean addProduct(Product prod) {
+		em.persist(prod);
+		return true;
+	}
+
+	@Override
+	public boolean editProduct(Product prod) {
+		em.merge(prod);
+		return true;
+	}
+
+	@Override
+	public Product viewProduct(long prodId) {
+		
+		return em.find(Product.class, prodId);
+	}
+
+	@Override
+	public List<Product> viewProducts() {
+		String jpql = "from Product ";
+		TypedQuery<Product> query = em.createQuery(jpql, Product.class);
+		return query.getResultList();
+	}
+	
+	@Override
+	public boolean deleteProduct(Product product) {
+		em.remove(product);
+		return true;
+	}
+
+
+	@Override
+	public Vendor viewVendor(long vendorId) {
+		return em.find(Vendor.class , vendorId);
+	}
+
+	@Override
+	public List<Vendor> viewVendors() {
+		String jpql= "from Vendor v ";
+		TypedQuery<Vendor> query = em.createQuery(jpql, Vendor.class);
+		return query.getResultList();
+		
+	}
+
+	@Override
+	public List<Vendor> viewVendorbyType(String VendorType) {
+		String jpql = "from Vendor v where v.vendortype = :vtype";
+		TypedQuery<Vendor> query = em.createQuery(jpql, Vendor.class);
+		query.setParameter("vtype", VendorType);
+		return query.getResultList();
+
+	}
+
 
 	
 
